@@ -14,10 +14,18 @@ type DomainError struct {
 	field       string
 	code        string
 	description string
+	wrapped     error
 }
 
 func NewTodoDomainError(field string, code string, description string) DomainError {
 	return DomainError{field: field, code: code, description: description}
+}
+
+func NewTodoDomainErrorWithError(description string, error error) error {
+	return &DomainError{
+		description: description,
+		wrapped:     error,
+	}
 }
 
 func (e DomainError) Field() string {
@@ -34,4 +42,45 @@ func (e DomainError) Description() string {
 
 func (e *DomainError) Error() string {
 	return fmt.Sprintf("%v %v %v", e.field, e.code, e.description)
+}
+
+func (e *DomainError) Unwrap() error {
+	return e.wrapped
+}
+
+func (e *DomainError) Is(target error) bool {
+	_, ok := target.(*DomainError)
+	return ok
+}
+
+type TechnicalError struct {
+	Wrapped error
+}
+
+func (e *TechnicalError) Unwrap() error {
+	return e.Wrapped
+}
+
+func (e *TechnicalError) Error() string {
+	return fmt.Sprintf("Technical error: %s", e.Wrapped.Error())
+}
+
+func (e *TechnicalError) Is(target error) bool {
+	_, ok := target.(*DomainError)
+	return ok
+}
+
+type IDInferiorToZeroError struct {
+	Id int
+}
+
+func (e *IDInferiorToZeroError) Error() string {
+	return fmt.Sprintf("id should be superior to 0, provided id : %d", e.Id)
+}
+
+type TodoNotFoundError struct {
+}
+
+func (e *TodoNotFoundError) Error() string {
+	return "could not find todo"
 }

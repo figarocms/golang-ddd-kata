@@ -38,7 +38,7 @@ func handleReadTodo(context *gin.Context, IDAsString string, api api.TodosAPI) {
 
 	response, errs := api.ReadTodo(ID)
 	if errs != nil {
-		answerError(context, errs)
+		answerErrorFromError(context, errs)
 		return
 	}
 	if response == (model.ReadTodoResponse{}) {

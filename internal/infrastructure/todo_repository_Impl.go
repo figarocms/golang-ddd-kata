@@ -70,9 +70,9 @@ func (repository todosRepository) ReadTodo(ID int) (model.Todo, error) {
 func handleReadError(err error) (model.Todo, error) {
 	var todo model.Todo
 	if err.Error() == goORMRecordNotFoundError {
-		return todo, nil
+		return todo, &model.TodoNotFoundError{}
 	}
-	return todo, err
+	return todo, &model.TechnicalError{Wrapped: err}
 }
 
 func (repository todosRepository) Create(todo model.Todo) (int, error) {

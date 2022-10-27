@@ -27,6 +27,11 @@ func (api TodosAPI) CreateTodo(request port.CreationRequest) (int, interface{}) 
 }
 
 func (api TodosAPI) ReadTodo(ID int) (model.ReadTodoResponse, error) {
+	if ID <= 0 {
+		return model.ReadTodoResponse{},
+			model.NewTodoDomainErrorWithError("Error when reading todo", &model.IDInferiorToZeroError{Id: ID})
+	}
+
 	todo, err := api.todosRepository.ReadTodo(ID)
 	if err != nil {
 		return model.ReadTodoResponse{}, err

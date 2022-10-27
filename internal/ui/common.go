@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -32,6 +33,26 @@ func answerError(context *gin.Context, err interface{}) {
 		return
 	}
 	answerUnprocessableEntity(context, errs)
+}
+
+func answerErrorFromError(context *gin.Context, err error) {
+	if errors.Is(err, &model.DomainError{}) {
+		// handle domain error
+
+		idError := &model.IDInferiorToZeroError{}
+		if errors.As(err, &idError) {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("id is inferior to 0 : %d", idError.Id))
+			return
+		}
+
+		context.JSON(http.StatusBadRequest, "wrong input")
+	} else if errors.Is(err, &model.TechnicalError{}) {
+		// handle technical error
+		answerError500(context, err)
+		return
+	}
+
+	answerError500(context, err)
 }
 
 func answerResourceNotFound(context *gin.Context, message string) {
