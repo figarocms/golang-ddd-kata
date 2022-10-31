@@ -36,4 +36,8 @@ gen-open-api:
 	rm ./deployments/swagger/swagger.yaml
 	rm ./deployments/swagger/docs.go
 
-# TODO: écrire une target qui check si les packages internal/domain n'utilisent pas de packages externe à internal/doamin
+use-external-package: # Check if packages in internal/domain use external package (they must not)
+	@# 1. List all imports in the `./internal/domain/` package
+	@# 2. Remove all imports that contain "internal/domain" because we want to allow import from this package inside it self
+	@# 3. Keep only imports that have a period in it (this will remore standard lib import that have a / in them ex: net/http)
+	@! go list -f '{{join .Imports "\n"}}' ./internal/domain/... | grep -v internal/domain | grep "\."
