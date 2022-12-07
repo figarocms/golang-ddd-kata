@@ -1,3 +1,5 @@
+.PHONY: default run build tests tests-e2e generate_swagger use-external-package
+
 # loading env if file exists
 ifeq ($(shell test -s .env && echo -n yes),yes)
 	include .env
@@ -23,7 +25,7 @@ tests :
 tests-e2e :
 	go test -v -count=1 ./internal/e2e -count=1
 
-gen-open-api:
+generate_swagger:
 	# 1. Génération des fichiers swagger
 	@swag init -o ./deployments/swagger
 	# 2. On créer le swagger de prod avec le host de prod
